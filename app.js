@@ -53,8 +53,53 @@ const upload = multer({ storage });
 
 app.get('/', (red, res) => {
     console.log("Got it")
-})
+});
 
+// Read all files from MongoDB
+app.get('/docs/', (req, res) => {
+    gfs.files.find().toArray((err, files) => {  
+        if(!files || files.lengh === 0) {
+            return res.status(404).json({
+                err: 'No file found'
+            });
+        }
+
+        return res.json(files);
+    })
+});
+
+// Read a specific file from MongoDB
+app.get('/doc/:filename', (req, res) => {
+    gfs.files.findOne({filename: req.params.filename}, (err, file) => {  
+        if(!file || file.lengh === 0) {
+            return res.status(404).json({
+                err: 'No file found'
+            });
+        }
+
+        return res.json(file);
+    })
+});
+
+// display a single file from MongoDB
+app.get('/doc/img/:filename', (req, res) => {
+    gfs.files.findOne({filename: req.params.filename}, (err, file) => {  
+        if(!file || file.lengh === 0) {
+            return res.status(404).json({
+                err: 'No file found'
+            });
+        }
+
+        if(file.contentType === "image/jpeg" || file.contentType === "image/png") {
+            const readStream = gfs.createReadStream(file.filename);
+            readStream.pipe(res);
+        } else {
+            resizeTo.status(404).json({
+                err: 'Not an image'
+            })
+        }
+    })
+})
 
 app.post('/', upload.single('file'), (req, res) => {
     res.json({ file: req.file })
