@@ -6,6 +6,7 @@ const multer  = require('multer');
 const GridFsStorage = require('multer-gridfs-storage');
 const Grid = require('gridfs-stream');
 const bodyParser = require('body-parser');
+const ObjectId = require('mongodb').ObjectID;
 
 const app = express();
 
@@ -69,8 +70,8 @@ app.get('/docs/', (req, res) => {
 });
 
 // Read a specific file from MongoDB
-app.get('/doc/:filename', (req, res) => {
-    gfs.files.findOne({filename: req.params.filename}, (err, file) => {  
+app.get('/doc/:id', (req, res) => {
+    gfs.files.findOne({_id: new ObjectId(req.params.id)}, (err, file) => {  
         if(!file || file.lengh === 0) {
             return res.status(404).json({
                 err: 'No file found'
@@ -82,8 +83,8 @@ app.get('/doc/:filename', (req, res) => {
 });
 
 // display a single file from MongoDB
-app.get('/doc/img/:filename', (req, res) => {
-    gfs.files.findOne({filename: req.params.filename}, (err, file) => {  
+app.get('/doc/img/:id', (req, res) => {
+    gfs.files.findOne({_id: new ObjectId(req.params.id)}, (err, file) => {  
         if(!file || file.lengh === 0) {
             return res.status(404).json({
                 err: 'No file found'
