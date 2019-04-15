@@ -52,12 +52,8 @@ const storage = new GridFsStorage({
 
 const upload = multer({ storage });
 
-app.get('/', (red, res) => {
-    console.log("Got it")
-});
-
 // Read all files from MongoDB
-app.get('/docs/', (req, res) => {
+app.get('/', (req, res) => {
     gfs.files.find().toArray((err, files) => {  
         if(!files || files.lengh === 0) {
             return res.status(404).json({
@@ -70,7 +66,7 @@ app.get('/docs/', (req, res) => {
 });
 
 // Read a specific file from MongoDB
-app.get('/doc/:id', (req, res) => {
+app.get('/:id', (req, res) => {
     gfs.files.findOne({_id: new ObjectId(req.params.id)}, (err, file) => {  
         if(!file || file.lengh === 0) {
             return res.status(404).json({
@@ -83,7 +79,7 @@ app.get('/doc/:id', (req, res) => {
 });
 
 // display a single file from MongoDB
-app.get('/doc/img/:id', (req, res) => {
+app.get('/img/:id', (req, res) => {
     gfs.files.findOne({_id: new ObjectId(req.params.id)}, (err, file) => {  
         if(!file || file.lengh === 0) {
             return res.status(404).json({
@@ -105,6 +101,16 @@ app.get('/doc/img/:id', (req, res) => {
 app.post('/', upload.single('file'), (req, res) => {
     res.json({ file: req.file })
     console.log(new Date())
+})
+
+app.delete('/:id',  (req, res) => {
+    gfs.remove({_id: req.params.id, root: 'user_docs'}, (err, gridStore) => {
+         if(err) {
+             return err.status(500).json({err: err});
+         }
+
+         return res.status(200).json({msg: 'success'})
+    })
 })
 const port = 5000;
 
