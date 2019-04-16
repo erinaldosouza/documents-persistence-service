@@ -60,14 +60,13 @@ app.use(bodyParser.json());
 app.listen(port, () => {
     console.log(`Service started on port ${port}`)
     client.start((err, res) => {
-     assert.ifError(err);
+    assert.ifError(err);
      
     });
 });
 
 // Config api key
 const securityHeaderConfig = { header: 'api-key', prefix: 'Api-Key-' }; 
-
 const API_KEY = 'a';
     
 // Verifying api key
@@ -88,11 +87,8 @@ const mongoOptions = { useNewUrlParser: true }
 
 // Create Mongo connection
 mongoose.connect(mongoURI, mongoOptions, (err, conn) => {
-    
-    if(err) console.log(err);
-    
+    assert.ifError(err)    
     gfs = new GridFSBucket(conn.db, {bucketName: 'user_docs'});
-
 });
 
 // Create a store object
