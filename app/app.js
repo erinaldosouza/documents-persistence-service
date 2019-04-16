@@ -6,9 +6,8 @@ const multer  = require('multer');
 const GridFsStorage = require('multer-gridfs-storage');
 const bodyParser = require('body-parser');
 const passport = require('passport');
-const ObjectID = require('mongodb').ObjectID;
 const HeaderAPIKeyStrategy = require('passport-headerapikey').HeaderAPIKeyStrategy;
-const { GridFSBucket } = require('mongodb')
+const { GridFSBucket, ObjectID } = require('mongodb')
 
 const app = express();
 
@@ -22,7 +21,8 @@ app.listen(port, ()=> {
 })
 
 // Config api key
-const securityHeaderConfig = { header: 'api-key', prefix: 'Api-Key-' };
+const securityHeaderConfig = { header: 'api-key', prefix: 'Api-Key-' }; 
+
 const API_KEY = 'a';
     
 // Verifying api key
@@ -30,8 +30,8 @@ passport.use(new HeaderAPIKeyStrategy(securityHeaderConfig, false, (apikey, done
         return done(null, API_KEY === apikey)
     }
 ));
-const passportSession = { session: false };
 
+const passportSession = { session: false };
 app.use(passport.initialize());
 
 // Init gfs
