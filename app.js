@@ -7,11 +7,24 @@ const GridFsStorage = require('multer-gridfs-storage');
 const Grid = require('gridfs-stream');
 const bodyParser = require('body-parser');
 const ObjectId = require('mongodb').ObjectID;
+const passport = require('passport');
+const HeaderAPIKeyStrategy = require('passport-headerapikey').HeaderAPIKeyStrategy
 
 const app = express();
 
 // Middleware
 app.use(bodyParser.json());
+
+// Config api key
+const securityHeaderConfig = { header: 'api-key', prefix: 'Api-Key-' };
+const API_KEY = 'a';
+    
+// Verifying api key
+passport.use( new HeaderAPIKeyStrategy(securityHeaderConfig, false, (apikey, done) => {
+
+        return done(null, API_KEY === apikey)
+    }
+));
 
 // Mongo uri
 const mongoURI = "mongodb://localhost:27017/test_db";
@@ -53,7 +66,8 @@ const storage = new GridFsStorage({
 const upload = multer({ storage });
 
 // Read all files from MongoDB
-app.get('/', (req, res) => {
+// Saying that the url / must have the api key
+app.get('/',  passport.authenticate('headerapikey'), (req, res) => {
     gfs.files.find().toArray((err, files) => {  
         if(!files || files.lengh === 0) {
             return res.status(404).json({
@@ -67,7 +81,7 @@ app.get('/', (req, res) => {
 
 // Read a specific file from MongoDB
 app.get('/:id', (req, res) => {
-    gfs.files.findOne({_id: new ObjectId(req.params.id)}, (err, file) => {  
+    gfs.files.findOne({_id: new ObjectId(req.params.id)}, (err, file) => {
         if(!file || file.lengh === 0) {
             return res.status(404).json({
                 err: 'No file found'
@@ -112,7 +126,7 @@ app.delete('/:id',  (req, res) => {
          return res.status(200).json({msg: 'success'})
     })
 })
-const port = 5000;
+const port = 443;
 
 app.listen(port, ()=> {
     console.log(`Server started on port ${port}`)

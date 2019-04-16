@@ -24,7 +24,8 @@
     "mongoose": "^5.5.1",
     "mongose": "0.0.2-security",
     "multer": "^1.4.1",
-    "multer-gridfs-storage": "^3.2.3"
+    "multer-gridfs-storage": "^3.2.3",
+    "passport-headerapikey": "^1.1.0"
   },
   "devDependencies": {
     "nodemon": "^1.18.11"
