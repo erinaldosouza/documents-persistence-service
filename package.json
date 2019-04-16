@@ -2,7 +2,7 @@
   "name": "documents-upload-service",
   "version": "1.0.0",
   "description": "Simple service to upload documents to mongodb",
-  "main": "app.js",
+  "main": "app/app.js",
   "scripts": {
     "start": "node app.js",
     "dev": "nodemon app.js"
