@@ -7,18 +7,63 @@ const GridFsStorage = require('multer-gridfs-storage');
 const bodyParser = require('body-parser');
 const passport = require('passport');
 const HeaderAPIKeyStrategy = require('passport-headerapikey').HeaderAPIKeyStrategy;
-const { GridFSBucket, ObjectID } = require('mongodb')
+const { GridFSBucket, ObjectID } = require('mongodb');
+const os = require('os');
+const ifaces = os.networkInterfaces();
+const Eureka = require('eureka-js-client').Eureka;
+const randomstring = require("randomstring");
+let  ipAddress;
+const assert = require('assert');
+
+const port = 5000;
+
+// getting the local ip adress
+Object.keys(ifaces).forEach((ifname) => {
+    ifaces[ifname].forEach((iface) => {
+        if ('Ethernet' === ifname) {
+            ipAddress =  iface.address;
+        }     
+    });
+  });
+
+const client = new Eureka({
+    instance: {
+        app: 'documents-persistence-service',
+        hostName: 'documents-persistence-service:' +  randomstring.generate(32),
+        ipAddr: ipAddress,
+        port:{
+            '$': port,
+            '@enabled': true
+        },
+        vipAddress: ipAddress,
+        statusPageUrl: ("http://"+ ipAddress + ":" +  port + "/info"),
+        dataCenterInfo: {
+         '@class': 'com.netflix.appinfo.InstanceInfo$DefaultDataCenterInfo',
+         name: 'MyOwn',
+        }
+      },
+
+      eureka: {
+        useLocalMetadata: true,
+        // eureka server host / port
+        host: '127.0.0.1',
+        port: 8761,
+        servicePath: '/eureka/apps'
+      }
+    })
 
 const app = express();
 
 // Middleware
 app.use(bodyParser.json());
 
-const port = 5000;
-
-app.listen(port, ()=> {
-    console.log(`Server started on port ${port}`)
-})
+app.listen(port, () => {
+    console.log(`Service started on port ${port}`)
+    client.start((err, res) => {
+     assert.ifError(err);
+     
+    });
+});
 
 // Config api key
 const securityHeaderConfig = { header: 'api-key', prefix: 'Api-Key-' }; 
@@ -87,6 +132,10 @@ app.get('/', passport.authenticate('headerapikey', passportSession), (req, res) 
         return res.json(files);
     })
 });
+
+app.get('/info', passport.authenticate('headerapikey', passportSession), (req, res) => {
+    return res.json(client.config.instance);
+})
 
 // Read a specific file from MongoDB
 app.get('/:id', passport.authenticate('headerapikey', passportSession), (req, res) => {
