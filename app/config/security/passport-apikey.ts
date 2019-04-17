@@ -6,8 +6,8 @@ import randomstring from 'randomstring';
 export class ApiKeySecurityConfig {
 
     // Config api key
-    private securityHeaderConfig = { header: 'api-key', prefix: 'Api-Key-' }; 
-    private API_KEY = randomstring.generate(100);
+    private securityHeaderConfig = { header: 'api-key', prefix: 'api-key-' }; 
+    private API_KEY = 'api-key-' + randomstring.generate(100);
 
     public configApiKey() {
                    
