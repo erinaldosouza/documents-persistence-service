@@ -62,6 +62,10 @@
             res.json({ file: req.file })
         });
 
+        app.post('/files', upload.array('files'), (req: any, res: any) => {
+            res.json({ files: req.files })
+        });
+
         app.delete('/:id', passport.authenticate('headerapikey', passportSession), (req: any, res: any) => {
             console.log("ID", req.params.id)
             gfs.delete(new ObjectID(req.params.id), (err: any) => {

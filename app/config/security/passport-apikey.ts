@@ -6,11 +6,11 @@ import randomstring from 'randomstring';
 export class ApiKeySecurityConfig {
 
     // Config api key
-    private securityHeaderConfig = { header: 'api-key', prefix: 'api-key-' }; 
-    private API_KEY = 'api-key-' + randomstring.generate(100);
+    private securityHeaderConfig = { header: 'api-key', prefix: '' }; 
+    private API_KEY =  randomstring.generate(100);
 
     public configApiKey() {
-                   
+
         // Verifying api key
         passport.use(new HeaderAPIKeyStrategy(this.securityHeaderConfig, false, (apikey: any, done: any) => {
                 return done(null, this.API_KEY === apikey)
