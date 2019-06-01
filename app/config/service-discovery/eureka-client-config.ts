@@ -28,6 +28,10 @@ export class EurekaClientConfig {
             });
         });
 
+        if(localIp === 'N/A') {
+            localIp = ifaces['Wi-Fi'][1].address;
+        }
+
         return localIp;
     }
 
