@@ -52,7 +52,7 @@ export class EurekaClientConfig {
                 port: portWrapper,
                 vipAddress: 'document-persistence-service',
                 statusPageUrl: ("http://" + this.localIpAddress + ":" +  servicePort + "/info"),
-                homePageUrl: "http://" + this.localIpAddress + ":" + portWrapper['$'],
+                homePageUrl: "http://" + this.localIpAddress + ":" + portWrapper['$'] + "/",
                 dataCenterInfo: {
                     '@class': 'com.netflix.appinfo.InstanceInfo$DefaultDataCenterInfo',
                     name: dataCenterName,
