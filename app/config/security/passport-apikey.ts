@@ -11,11 +11,11 @@ export class ApiKeySecurityConfig {
 
     public configApiKey() {
 
-        // Verifying api key
-        passport.use(new HeaderAPIKeyStrategy(this.securityHeaderConfig, false, (apikey: any, done: any) => {
-                return done(null, this.API_KEY === apikey)
-            }
-        ));
+         // Verifying api key
+         passport.use(new HeaderAPIKeyStrategy(this.securityHeaderConfig, false, (apikey: any, done: any) => {
+            return done(null, this.API_KEY === apikey)
+        }
+    ));
 
         return passport;
     }

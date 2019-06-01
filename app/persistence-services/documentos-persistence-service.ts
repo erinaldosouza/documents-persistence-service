@@ -58,16 +58,24 @@
             })
         })
 
-        app.post('/', upload.single('file'), (req: any, res: any) => {
+        app.post('/', passport.authenticate('headerapikey', passportSession), upload.single('file'), (req: any, res: any) => {
             res.json({ file: req.file })
         });
-
-        app.post('/files', upload.array('files'), (req: any, res: any) => {
+        
+        app.post('/files', passport.authenticate('headerapikey', passportSession), upload.array('files'), (req: any, res: any) => {
             res.json({ files: req.files })
         });
 
+        app.put('/:id', passport.authenticate('headerapikey', passportSession), upload.single('file'), (req: any, res: any) => {
+            gfs.delete(new ObjectID(req.params.id), (err: any) => {
+                if(err) {
+                    return res.status(500).json({err: err});
+                }
+            })
+            res.json({ file: req.file })
+        });
+
         app.delete('/:id', passport.authenticate('headerapikey', passportSession), (req: any, res: any) => {
-            console.log("ID", req.params.id)
             gfs.delete(new ObjectID(req.params.id), (err: any) => {
                 if(err) {
                     return res.status(500).json({err: err});
