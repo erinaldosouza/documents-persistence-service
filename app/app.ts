@@ -6,6 +6,7 @@ import { EurekaClientConfig } from './config/service-discovery/eureka-client-con
 import { MongoDBConfig } from './config/database/mongo-db';
 import { ApiKeySecurityConfig } from './config/security/passport-apikey';
 import { DocumentsPersistenceService } from './persistence-services/documentos-persistence-service';
+import { AmpqClient } from './config/messaging/ampq';
 
 const port = 5000;
 
@@ -43,6 +44,8 @@ const init = (gfs: any, upload: any, err?: any) => {
 
     // Endpoints configuration
     new DocumentsPersistenceService().config(app, passport, passportSession, eurekaClient, gfs, upload);
+
+    new AmpqClient().config(gfs);
 
     console.log(`Service started on port ${port}`);
 };
