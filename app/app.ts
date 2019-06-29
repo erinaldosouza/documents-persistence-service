@@ -7,6 +7,8 @@ import { MongoDBConfig } from './config/database/mongo-db';
 import { ApiKeySecurityConfig } from './config/security/passport-apikey';
 import { DocumentsPersistenceService } from './persistence-services/documentos-persistence-service';
 import { AmpqClient } from './config/messaging/ampq';
+import { GridFSBucket } from 'mongodb';
+
 
 const port = 5000;
 
@@ -26,7 +28,7 @@ app.listen(port, () => {
     new MongoDBConfig(mongoURI, mongoOptions).configDB(init);
 });
 
-const init = (gfs: any, upload: any, err?: any) => {
+const init = (gfs: GridFSBucket, upload: any, err?: any) => {
     // stop when error with database connection
     assert.ifError(err);    
 

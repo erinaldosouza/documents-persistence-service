@@ -1,10 +1,10 @@
 
-   import { ObjectID } from 'mongodb';
+   import { ObjectID, GridFSBucket } from 'mongodb';
 
    export class DocumentsPersistenceService {
        
 
-    public config(app: any, passport: any, passportSession: any, eurekaClient: any, gfs: any, upload: any) {
+    public config(app: any, passport: any, passportSession: any, eurekaClient: any, gfs: GridFSBucket, upload: any) {
 
         // Read all files from MongoDB
         // Saying that the url / must have the api key
@@ -39,7 +39,7 @@
 
         // display a single file from MongoDB
         app.get('/img/:id', passport.authenticate('headerapikey', passportSession), (req: any, res: any) => {
-            gfs.find(new ObjectID(req.params.id)).next((err: any, file: any) => {  
+            gfs.find(new ObjectID(req.params.id)).next((err: any, file: any) => {
                 if (err) console.log(err);
                 if(!file || file.lengh === 0) {
                     return res.status(404).json({
@@ -47,7 +47,7 @@
                     });
                 }
 
-                if(file.contentType === "image/jpeg" || file.contentType === "image/png") {
+                if(file.contentType === "image/jpeg" || file.contentType === "image/png" || file.contentType === "image/jpg") {
                     const readStream = gfs.openDownloadStream(file._id);
                     readStream.pipe(res);
                 } else {
