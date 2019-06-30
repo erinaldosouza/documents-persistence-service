@@ -1,6 +1,5 @@
 import  Amqp, { Channel }  from 'amqplib';
-import { GridFSBucket } from 'mongodb';
-import Crypto from 'crypto';
+import { GridFSBucket, ObjectID } from 'mongodb';
 
 export class AmpqClient {
 
@@ -51,8 +50,7 @@ export class AmpqClient {
     }
 
     private static startPublishing(msg:any) {
-       console.log(msg)
-       AmpqClient.channel.publish("user-persistence-document-exchange", "user-document-sinc-routingkey",
+        AmpqClient.channel.publish("user-persistence-document-exchange", "user-document-sinc-routingkey",
                                   Buffer.from(JSON.stringify(msg)), 
                                   { contentType: 'application/json'})
     }
@@ -60,40 +58,55 @@ export class AmpqClient {
     private consume(msg: any) {
 
         const object = JSON.parse(msg.content.toString());
-        
         switch(object.operationCod) {
             case 1: AmpqClient.saveDocument(object, msg); break;
             case 2: AmpqClient.updateDocument(object, msg); break;
             case 3: AmpqClient.deleteDocument(object, msg); break;
         }
- 
     }
 
-    private static saveDocument(object: any, message: any) {
-        Crypto.randomBytes(16, (err: any, buf: any) => {
-            if(err) {
-                throw err;                    
+    private static saveDocument(object: any, msg: any) {
+        
+        //const buffer = Buffer.from(object.bytes, "binary");
+        const uploadStream = AmpqClient.gfs.openUploadStream(object.filename, { contentType: object.contentType });
+
+        uploadStream.write(Buffer.from(object.bytes, 'base64'));
+
+        uploadStream.end(()=> {
+            AmpqClient.startPublishing({ userId: object.userId, documentId: uploadStream.id, operationCod: 1 });
+            AmpqClient.channel.ack(msg);           
+        });
+    }
+
+    private static updateDocument(object: any,  msg: any) {
+       AmpqClient.gfs.delete(new ObjectID(object.documentId), (error) => { 
+
+           if (error) {
+               console.error("Error", error);
+          
+            } else {
+                const uploadStream = AmpqClient.gfs.openUploadStreamWithId(new ObjectID(object.documentId), object.filename, { contentType: object.contentType });
+                uploadStream.write(Buffer.from(object.bytes, 'base64'));
+
+                uploadStream.end(()=> {
+                    AmpqClient.startPublishing({ userId: object.userId, documentId: uploadStream.id, operationCod: 2 });
+                    AmpqClient.channel.ack(msg);
+                });
+           }
+        })
+    }
+
+    private static deleteDocument(object: any, msg: any) {
+        AmpqClient.gfs.delete(new ObjectID(object.documentId), (error) => { 
+           
+            if (error) {
+                console.error("Error", error)
+            
+            } else {
+                AmpqClient.startPublishing({ documentId: object.documentId, operationCod: 3 });
+                AmpqClient.channel.ack(msg);
             }
 
-            const buffer = Buffer.from(object.bytes, "binary");
-            const uploadStream = AmpqClient.gfs.openUploadStream(buf.toString('hex'), {contentType: "image/jpeg"});
-
-            uploadStream.write(buffer);
-
-            uploadStream.end(()=> {
-                AmpqClient.startPublishing({ userId: object.userId, documentId: uploadStream.id });
-                AmpqClient.channel.ack(message);
-            });
         })
-
     }
-
-    private static updateDocument(_object: any, _message: any) {
-
-    }
-
-    private static deleteDocument(_object: any, _message: any) {
- 
-    }
-    
 }
