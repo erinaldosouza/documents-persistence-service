@@ -20,12 +20,8 @@ app.use(bodyParser.json());
 let eurekaClient: any;
 
 app.listen(port, () => {
-    // MongoDB - connection
-    const mongoURI = "mongodb://localhost:27017/test_db";
-    const mongoOptions = { useNewUrlParser: true }
-
     // Call init to start doing configurations after connected with database
-    new MongoDBConfig(mongoURI, mongoOptions).configDB(init);
+    new MongoDBConfig().configDB(init);
 });
 
 const init = (gfs: GridFSBucket, upload: any, err?: any) => {

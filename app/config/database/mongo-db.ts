@@ -7,7 +7,13 @@ import multer from 'multer'
 
 export class MongoDBConfig {
 
-    constructor(private mongoURI: string, private mongoOptions: Object) {
+    private mongoURI: string;
+    private mongoOptions: object;
+    
+    constructor() {
+        // MongoDB - connection
+        this.mongoURI = "mongodb://10.0.2.84:27017/test_db";
+        this.mongoOptions = { useNewUrlParser: true }
     }
 
     public configDB(callback: Function) {    
