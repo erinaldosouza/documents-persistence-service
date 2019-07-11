@@ -19,14 +19,14 @@ export class AmqpClientConfig {
             password: 'admin'
         }
         
-        Amqp.connect("amqp://192.168.100.107", options).then((connection: Amqp.Connection) => {
+        Amqp.connect("amqp://10.0.2.115", options).then((connection: Amqp.Connection) => {
            
-            connection.on('error', (error => {
+            connection.on('error', (error: any) => {
                 throw error;
-            }));
+            });
 
             this.conn = connection;
-            this.conn.createChannel().then((channel) => {
+            this.conn.createChannel().then((channel: any) => {
             console.log("AMPQ Connected succefully");
             AmqpClientConfig.channel = channel;
                 this.startListening();
@@ -70,12 +70,14 @@ export class AmqpClientConfig {
         //const buffer = Buffer.from(object.bytes, "binary");
         const uploadStream = AmqpClientConfig.gfs.openUploadStream(object.filename, { contentType: object.contentType });
 
-        uploadStream.write(Buffer.from(object.bytes, 'base64'));
+        const success = uploadStream.write(Buffer.from(object.bytes, 'base64'));
 
-        uploadStream.end(()=> {
-            AmqpClientConfig.startPublishing({ userId: object.userId, documentId: uploadStream.id, operationCod: 1 });
-            AmqpClientConfig.channel.ack(msg);           
-        });
+        if (success) {
+            uploadStream.end(()=> {
+                AmqpClientConfig.startPublishing({ userId: object.userId, documentId: uploadStream.id, operationCod: 1 });
+                AmqpClientConfig.channel.ack(msg);           
+            });
+        }
     }
 
     private static updateDocument(object: any,  msg: any) {
@@ -86,12 +88,16 @@ export class AmqpClientConfig {
           
             } else {
                 const uploadStream = AmqpClientConfig.gfs.openUploadStreamWithId(new ObjectID(object.documentId), object.filename, { contentType: object.contentType });
-                uploadStream.write(Buffer.from(object.bytes, 'base64'));
-
-                uploadStream.end(()=> {
-                    AmqpClientConfig.startPublishing({ userId: object.userId, documentId: uploadStream.id, operationCod: 2 });
-                    AmqpClientConfig.channel.ack(msg);
+                const success = uploadStream.write(Buffer.from(object.bytes, 'base64'), (error: any)=>{
+                    if(error) console.error(error);
                 });
+
+                if (success) {
+                    uploadStream.end(()=> {
+                        AmqpClientConfig.startPublishing({ userId: object.userId, documentId: uploadStream.id, operationCod: 2 });
+                        AmqpClientConfig.channel.ack(msg);
+                    });
+                }
            }
         })
     }
@@ -106,7 +112,6 @@ export class AmqpClientConfig {
                 AmqpClientConfig.startPublishing({ documentId: object.documentId, operationCod: 3 });
                 AmqpClientConfig.channel.ack(msg);
             }
-
         })
     }
 }
