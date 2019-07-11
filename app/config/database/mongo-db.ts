@@ -9,11 +9,19 @@ export class MongoDBConfig {
 
     private mongoURI: string;
     private mongoOptions: object;
-    
+
     constructor() {
         // MongoDB - connection
-        this.mongoURI = "mongodb://10.0.2.84:27017/test_db";
-        this.mongoOptions = { useNewUrlParser: true }
+        this.mongoURI = "mongodb://10.0.2.84:27017?authMechanism=SCRAM-SHA-256";
+        this.mongoOptions = {
+            useNewUrlParser: true,
+            dbName: 'test_db', 
+            user: 'app_admin', 
+            pass: 'app_admin', 
+            auth: { 
+                authdb: 'admin'
+            }
+        };
     }
 
     public configDB(callback: Function) {    

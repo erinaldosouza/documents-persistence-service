@@ -64,7 +64,7 @@ export class EurekaClientConfig {
               eureka: {
                 useLocalMetadata: true,
                 // eureka server host / port
-                host: '127.0.0.1',
+                host: '10.0.2.85',
                 port: 8761,
                 servicePath: '/eureka/apps',
               }
