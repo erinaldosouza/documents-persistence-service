@@ -1,5 +1,5 @@
 import { Mongoose }  from 'mongoose';
-import assert from 'assert';
+//import assert from 'assert';
 import { GridFSBucket, MongoError } from 'mongodb';
 import GridFsStorage from 'multer-gridfs-storage';
 import Crypto from 'crypto';
@@ -12,16 +12,11 @@ export class MongoDBConfig {
 
     constructor() {
         // MongoDB - connection
-        this.mongoURI = "mongodb://10.0.2.84:27017?authMechanism=SCRAM-SHA-256";
+        this.mongoURI = "mongodb://10.0.2.84:27017/test_db";
         this.mongoOptions = {
-            useNewUrlParser: true,
-            dbName: 'test_db', 
-            user: 'app_admin', 
-            pass: 'app_admin', 
-            auth: { 
-                authdb: 'admin'
-            }
+            useNewUrlParser: true
         };
+
     }
 
     public configDB(callback: Function) {    
@@ -34,8 +29,9 @@ export class MongoDBConfig {
             console.log(`Database connected: ${this.mongoURI}`)
 
         }).catch((err: MongoError) => {
-            assert.ifError(err);
-            callback(err);
+            console.log(err)
+           /* assert.ifError(err);
+            callback(err);*/
         });
     }
 
