@@ -28,7 +28,7 @@
     "amqplib": "^0.5.3",
     "body-parser": "^1.18.3",
     "eureka-js-client": "^4.4.2",
-    "express": "^4.16.4",
+    "express": "^4.17.3",
     "gridfs-stream": "^1.1.1",
     "mongoose": "^5.5.1",
     "mongose": "0.0.2-security",
